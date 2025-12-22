@@ -1,33 +1,32 @@
 import { useState } from "react";
 import { api } from "../services/api";
-import { useAuth } from "../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 
-export default function Login() {
+export default function Signup() {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     setError("");
 
     try {
-      const res = await api.post("/auth/login", { email, password });
-      login(res.data);
-
-      // Redirect based on role
-      const role = res.data.user.role;
-      if (role === 'admin' || role === 'officer') {
-        navigate("/dashboard");
-      } else {
-        navigate("/");
-      }
-
+      await api.post("/auth/register", {
+        name,
+        email,
+        password
+      });
+      alert("Signup successful. Please login.");
+      navigate("/login");
     } catch (err) {
-      setError("Invalid email or password. Please try again.");
+      setError("Signup failed. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -35,30 +34,40 @@ export default function Login() {
     <div className="flex items-center justify-center min-h-screen bg-gray-50 relative overflow-hidden">
       {/* Background Decorations */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
-        <div className="absolute top-[-10%] right-[-10%] w-96 h-96 bg-blue-100 rounded-full blur-3xl opacity-50"></div>
-        <div className="absolute bottom-[-10%] left-[-10%] w-96 h-96 bg-indigo-100 rounded-full blur-3xl opacity-50"></div>
+        <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-blue-100 rounded-full blur-3xl opacity-50"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-indigo-100 rounded-full blur-3xl opacity-50"></div>
       </div>
 
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden z-10 mx-4">
         <div className="bg-blue-600 p-8 text-center">
-          <h2 className="text-3xl font-black text-white tracking-tight">Welcome Back</h2>
-          <p className="text-blue-100 mt-2">Sign in to your SAGY account</p>
+          <h2 className="text-3xl font-black text-white tracking-tight">Create Account</h2>
+          <p className="text-blue-100 mt-2">Join the SAGY network today</p>
         </div>
 
         <form onSubmit={handleSubmit} className="p-8 pt-10">
           {error && (
             <div className="mb-6 bg-red-50 text-red-600 p-3 rounded-lg text-sm font-medium border border-red-100 flex items-center">
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
               {error}
             </div>
           )}
 
-          <div className="space-y-6">
+          <div className="space-y-5">
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2">Full Name</label>
+              <input
+                className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:border-blue-500 focus:bg-white focus:outline-none transition-all font-medium text-gray-700"
+                placeholder="John Doe"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+            </div>
+
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2">Email Address</label>
               <input
                 className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:border-blue-500 focus:bg-white focus:outline-none transition-all font-medium text-gray-700"
-                placeholder="Ex. official@sagy.gov.in"
+                placeholder="john@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -80,15 +89,16 @@ export default function Login() {
 
           <button
             type="submit"
-            className="w-full mt-8 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg hover:shadow-blue-200 transform hover:-translate-y-0.5 active:scale-95"
+            disabled={loading}
+            className={`w-full mt-8 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg hover:shadow-blue-200 transform hover:-translate-y-0.5 active:scale-95 ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
           >
-            Log In
+            {loading ? 'Creating Account...' : 'Sign Up'}
           </button>
 
           <p className="text-center mt-6 text-gray-500 text-sm">
-            Don't have an account?{" "}
-            <Link to="/signup" className="text-blue-600 font-bold hover:underline">
-              Sign Up
+            Already have an account?{" "}
+            <Link to="/login" className="text-blue-600 font-bold hover:underline">
+              Log In
             </Link>
           </p>
         </form>

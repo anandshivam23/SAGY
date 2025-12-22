@@ -1,45 +1,86 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import Layout from "../layouts/Layout";
+
+// Pages
+import Landing from "../pages/Landing";
+import Login from "../pages/Login";
+import Signup from "../pages/Signup";
 import Dashboard from "../pages/Dashboard";
 import Villages from "../pages/Villages";
 import Projects from "../pages/Projects";
 import Complaints from "../pages/Complaints";
 import Users from "../pages/Users";
-import Login from "../pages/Login";
-import { AuthProvider, useAuth } from "../context/AuthContext";
-
-function ProtectedRoute({ children }) {
-  const { user } = useAuth();
-  return user ? children : <Login />;
-}
 
 export default function AppRouter() {
+  const { user } = useAuth();
+
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <Routes>
+    <Routes>
+      {/* PUBLIC */}
+      <Route
+        path="/"
+        element={
+          <Layout>
+            <Landing />
+          </Layout>
+        }
+      />
+      <Route
+        path="/villages"
+        element={
+          <Layout>
+            <Villages />
+          </Layout>
+        }
+      />
+      <Route
+        path="/complaints"
+        element={
+          <Layout>
+            <Complaints />
+          </Layout>
+        }
+      />
 
-          {/* PROTECTED PATHS */}
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <Layout />
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<Dashboard />} />
-            <Route path="villages" element={<Villages />} />
-            <Route path="projects" element={<Projects />} />
-            <Route path="complaints" element={<Complaints />} />
-            <Route path="users" element={<Users />} />
-          </Route>
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
 
-          {/* PUBLIC LOGIN PAGE */}
-          <Route path="/login" element={<Login />} />
+      {/* PROTECTED */}
+      {user && user.role !== "user" && (
+        <Route
+          path="/dashboard"
+          element={
+            <Layout>
+              <Dashboard />
+            </Layout>
+          }
+        />
+      )}
 
-        </Routes>
-      </AuthProvider>
-    </BrowserRouter>
+      {user && (user.role === "admin" || user.role === "officer") && (
+        <Route
+          path="/projects"
+          element={
+            <Layout>
+              <Projects />
+            </Layout>
+          }
+        />
+      )}
+
+      {user && user.role === "admin" && (
+        <Route
+          path="/users"
+          element={
+            <Layout>
+              <Users />
+            </Layout>
+          }
+        />
+      )}
+
+      <Route path="*" element={<Navigate to="/" />} />
+    </Routes>
   );
 }

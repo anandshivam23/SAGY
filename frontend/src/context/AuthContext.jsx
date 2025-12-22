@@ -1,46 +1,39 @@
-import { createContext, useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { api } from "../services/api";
+import { createContext, useContext, useEffect, useState } from "react";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
 
-  const [user, setUser] = useState(
-    JSON.parse(localStorage.getItem("user")) || null
-  );
+  useEffect(() => {
+    try {
+      const storedUser = localStorage.getItem("user");
 
-  const [token, setToken] = useState(localStorage.getItem("token") || "");
-
-  // ACTUAL LOGIN
-  const login = async (email, password) => {
-    const res = await api.post("/auth/login", { email, password });
-
-    if (!res.data.success) {
-      alert(res.data.message);
-      return;
+      if (storedUser && storedUser !== "undefined") {
+        setUser(JSON.parse(storedUser));
+      } else {
+        setUser(null);
+      }
+    } catch (err) {
+      console.error("Invalid user in localStorage", err);
+      localStorage.removeItem("user");
+      setUser(null);
     }
+  }, []);
 
-    localStorage.setItem("token", res.data.token);
-    localStorage.setItem("user", JSON.stringify(res.data.user));
-
-    setToken(res.data.token);
-    setUser(res.data.user);
-
-    navigate("/");
+  const login = (data) => {
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("user", JSON.stringify(data.user));
+    setUser(data.user);
   };
 
   const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    localStorage.clear();
     setUser(null);
-    setToken("");
-    navigate("/login");
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,25 +1,19 @@
-import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
-import { Outlet } from "react-router-dom";
+import Footer from "../components/Footer";
 
-export default function Layout() {
+export default function Layout({ children }) {
   return (
-    <div className="flex">
+    <div className="min-h-screen flex flex-col">
+      {/* Navbar always visible */}
+      <Navbar />
 
-      {/* Sidebar */}
-      <Sidebar />
+      {/* MAIN CONTENT (THIS WAS MISSING / BROKEN) */}
+      <main className="flex-1 px-8 py-6 bg-gray-50">
+        {children}
+      </main>
 
-      <div className="flex-1 bg-gray-100 min-h-screen">
-        
-        {/* Navbar */}
-        <Navbar />
-
-        {/* Page Content */}
-        <div className="p-6">
-          <Outlet />
-        </div>
-
-      </div>
+      {/* Footer always visible */}
+      <Footer />
     </div>
   );
 }

@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const villageSchema = new mongoose.Schema({
   name: String,
   population: Number,
-  createdAt: { type: Date, default: Date.now }
-});
+  issues: String
+}, { timestamps: true });
 
 export default mongoose.model("Village", villageSchema);
