@@ -1,4 +1,4 @@
-# 🌾 SAGY - Village Development Management System
+ # 🌾 SAGY - Village Development Management System
 
 This is a full-stack web application built to manage and monitor village development activities under the Sansad Adarsh Gram Yojana (SAGY).
 
